@@ -13,6 +13,7 @@ import (
 )
 
 func main() {
+	// infrastructure - persistence
 	configService := infrastructure.NewYamlConfigService("config.yaml")
 	config, err := configService.Load()
 	if err != nil {
@@ -33,8 +34,9 @@ func main() {
 	}
 	defer sqliteDB.Close()
 	postRepository := infrastructure.NewSqlitePostRepository(sqliteDB)
+	authnService := infrastructure.NewEnvVarAuthnService(config.AuthnService.Key)
 
-	authnService := application.NewEnvVarAuthnService(config.AuthnService.Key)
+	// application
 	postCreate := application.NewPostCreate(authnService, postRepository)
 	postDelete := application.NewPostDelete(authnService, postRepository)
 	postDocumentSearch := application.NewPostDocumentSearch(postDocumentRepository)
@@ -42,6 +44,7 @@ func main() {
 	postUpdate := application.NewPostUpdate(authnService, postRepository)
 	postDocumentSync := application.NewPostDocumentSync(postDocumentRepository, postRepository)
 
+	// infrastructure - presentation
 	mux := http.NewServeMux()
 	infrastructure.NewPostController(mux, postCreate, postDelete, postDocumentSearch, postDocumentSync, postFind, postUpdate)
 
