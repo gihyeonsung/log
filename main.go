@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/elastic/go-elasticsearch/v9"
 	"github.com/gihyeonsung/log/internal/application"
@@ -33,6 +34,15 @@ func main() {
 		log.Fatalf("open sqlite database: %v", err)
 	}
 	defer sqliteDB.Close()
+
+	migration, err := os.ReadFile("init.sql")
+	if err != nil {
+		log.Fatalf("read migration file: %v", err)
+	}
+	if _, err := sqliteDB.Exec(string(migration)); err != nil {
+		log.Fatalf("execute migration: %v", err)
+	}
+
 	postRepository := infrastructure.NewSqlitePostRepository(sqliteDB)
 	authnService := infrastructure.NewEnvVarAuthnService(config.AuthnService.Key)
 
