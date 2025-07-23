@@ -1,35 +1,92 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useQuery } from "@tanstack/react-query";
+import { useDebouncedCallback, useDebouncedValue } from "@tanstack/react-pacer";
 
-function App() {
-  const [count, setCount] = useState(0)
+import { getPosts } from "./api/get-posts";
+import type { Post } from "./type/post";
+import { useState } from "react";
+import { getPostsSearch } from "./api/get-posts-search";
+
+const PostItem = ({ post }: { post: Post }) => {
+  const updatedAt = new Date(post.updatedAt);
+  const year = updatedAt.getFullYear();
+  const month = String(updatedAt.getMonth() + 1).padStart(2, "0");
+  const day = String(updatedAt.getDate()).padStart(2, "0");
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <a href={`/posts/${post.slug}`}>
+      <div className="text-neutral-500 font-bold text-sm hover:bg-neutral-100 cursor-pointer">
+        {year}.{month}.{day} {post.title}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    </a>
+  );
+};
 
-export default App
+const PostItemList = ({ posts }: { posts: Post[] }) => {
+  return (
+    <div className="flex flex-col">
+      <div className="text-neutral-500 font-bold pb-2 text-sm">포스트</div>
+
+      {posts.map((post) => (
+        <PostItem key={post.id} post={post} />
+      ))}
+    </div>
+  );
+};
+
+const Header = ({ site }: { site: string }) => {
+  return (
+    <div className="text-neutral-500 font-bold pb-2 text-sm flex flex-row justify-between items-center">
+      <div>{site}</div>
+
+      <SearchBar />
+    </div>
+  );
+};
+
+const SearchBar = () => {
+  const [query, setQuery] = useState("");
+  const [posts, setPosts] = useState<Array<Post>>([]);
+
+  const handleSearch = async (query: string) => {
+    if (!query) {
+      setPosts([]);
+      return;
+    }
+
+    const postsSearched = await getPostsSearch(query);
+    setPosts(postsSearched);
+    return postsSearched;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+  };
+
+  return (
+    <div className="text-neutral-500 pb-2 text-sm">
+      <input
+        type="text"
+        placeholder="Search"
+        value={query}
+        onChange={handleChange}
+      />
+    </div>
+  );
+};
+
+const App = () => {
+  const { data } = useQuery<Post[]>({
+    queryKey: ["posts"],
+    queryFn: getPosts,
+  });
+
+  return (
+    <div className="p-4">
+      <Header site="log" />
+
+      {data && <PostItemList posts={data} />}
+    </div>
+  );
+};
+
+export default App;
