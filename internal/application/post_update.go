@@ -12,6 +12,10 @@ type PostUpdate struct {
 	postRepository domain.PostRepository
 }
 
+func NewPostUpdate(authnService AuthnService, postRepository domain.PostRepository) *PostUpdate {
+	return &PostUpdate{authnService: authnService, postRepository: postRepository}
+}
+
 func (c *PostUpdate) Exec(key string, postID domain.PostID, title string, content string) error {
 	ok, err := c.authnService.Login(key)
 	if err != nil {

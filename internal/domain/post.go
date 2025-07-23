@@ -54,4 +54,16 @@ func (p *Post) Update(title string, content string, now time.Time) {
 
 type PostID uuid.UUID
 
+func (p PostID) String() string {
+	return uuid.UUID(p).String()
+}
+
+func PostIDFromString(s string) (PostID, error) {
+	uuid, err := uuid.Parse(s)
+	if err != nil {
+		return PostID{}, err
+	}
+	return PostID(uuid), nil
+}
+
 type PostSlug string

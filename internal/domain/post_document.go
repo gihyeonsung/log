@@ -18,6 +18,14 @@ type PostDocument struct {
 
 type PostDocumentID uuid.UUID
 
+func (p PostDocumentID) String() string {
+	return uuid.UUID(p).String()
+}
+
+func PostDocumentIDFromString(s string) PostDocumentID {
+	return PostDocumentID(uuid.MustParse(s))
+}
+
 func NewPostDocument(post *Post) (*PostDocument, error) {
 	uuid, err := uuid.NewV7()
 	if err != nil {

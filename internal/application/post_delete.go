@@ -11,6 +11,10 @@ type PostDelete struct {
 	postRepository domain.PostRepository
 }
 
+func NewPostDelete(authnService AuthnService, postRepository domain.PostRepository) *PostDelete {
+	return &PostDelete{authnService: authnService, postRepository: postRepository}
+}
+
 func (c *PostDelete) Exec(key string, postID domain.PostID) error {
 	ok, err := c.authnService.Login(key)
 	if err != nil {

@@ -1,7 +1,7 @@
 package domain
 
 type PostDocumentRepository interface {
-	Get(id PostDocumentID) (*PostDocument, error)
+	GetByPostID(postID PostID) (*PostDocument, error)
 	Search(query string) ([]*PostDocument, error)
 	Save(postDocument *PostDocument) error
 }

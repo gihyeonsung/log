@@ -1,8 +1,6 @@
 package application
 
 import (
-	"errors"
-
 	"github.com/gihyeonsung/log/internal/domain"
 )
 
@@ -11,29 +9,31 @@ type PostDocumentSync struct {
 	postRepository         domain.PostRepository
 }
 
-func (c *PostDocumentSync) Exec(postDocumentID domain.PostDocumentID) error {
-	postDocument, err := c.postDocumentRepository.Get(postDocumentID)
+func NewPostDocumentSync(postDocumentRepository domain.PostDocumentRepository, postRepository domain.PostRepository) *PostDocumentSync {
+	return &PostDocumentSync{postDocumentRepository: postDocumentRepository, postRepository: postRepository}
+}
+
+func (c *PostDocumentSync) Exec(postID domain.PostID) error {
+	var postDocument *domain.PostDocument
+	var err error
+	postDocument, err = c.postDocumentRepository.GetByPostID(postID)
 	if err != nil {
 		return err
 	}
 
-	post, err := c.postRepository.Get(postDocument.PostID)
-	if err != nil {
+	post, err := c.postRepository.Get(postID)
+	if err != nil || post == nil {
 		return err
-	}
-
-	if post == nil {
-		return errors.New("post nil")
 	}
 
 	if postDocument == nil {
 		postDocument, err = domain.NewPostDocument(post)
-		if err != nil {
-			return err
-		}
-	} else {
-		postDocument.Update(post)
 	}
+	if err != nil {
+		return err
+	}
+
+	postDocument.Update(post)
 
 	err = c.postDocumentRepository.Save(postDocument)
 	if err != nil {

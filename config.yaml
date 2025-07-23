@@ -1,0 +1,13 @@
+server:
+  host: localhost
+  port: 8080
+
+sqlite:
+  path: log.db
+
+elasticsearch:
+  host: localhost
+  port: 9200
+
+authn-service:
+  key: secret

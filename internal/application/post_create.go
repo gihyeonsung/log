@@ -12,6 +12,10 @@ type PostCreate struct {
 	postRepository domain.PostRepository
 }
 
+func NewPostCreate(authnService AuthnService, postRepository domain.PostRepository) *PostCreate {
+	return &PostCreate{authnService: authnService, postRepository: postRepository}
+}
+
 func (c *PostCreate) Exec(key string) error {
 	ok, err := c.authnService.Login(key)
 	if err != nil {
