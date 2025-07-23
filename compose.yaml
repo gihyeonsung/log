@@ -1,0 +1,11 @@
+services:
+  elasticsearch:
+    build:
+      context: ./docker/elasticsearch
+      dockerfile: Dockerfile
+    ports:
+      - 9200:9200
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - $PWD/docker/elasticsearch/data/usr/share/elasticsearch/data:/usr/share/elasticsearch/data
