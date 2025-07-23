@@ -26,6 +26,7 @@ jobs:
 
       - uses: docker/build-push-action@v6
         with:
-          context: docker/log
+          file: docker/log/Dockerfile
+          context: .
           push: true
           tags: ghcr.io/gihyeonsung/log:latest

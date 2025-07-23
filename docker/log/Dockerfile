@@ -5,13 +5,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN apk add --no-cache \
-    gcc \
-    musl-dev \
-    git \
-    make \
-    bash && \
-    go build -o log .
+RUN go build -o log .
 
 # runtime
 FROM alpine:latest
